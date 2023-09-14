@@ -22,12 +22,12 @@ def sign_in():
     driver.maximize_window()
     time.sleep(3)
     email_input = driver.find_element(By.XPATH, '//*[@id="session_key"]')
-    # usrva99@gmail.com uma1231970@gmail.com # babysivabcom01@gmail.com
-    email_input.send_keys("usrva99@gmail.com")
+    
+    email_input.send_keys("*********enter you Linkedin Login Id *****************")
     time.sleep(4)
     password_input = driver.find_element(By.XPATH, '//*[@id="session_password"]')
-    # Monsbiotech@123 Biotechmons@123 Monsbiotech@989
-    password_input.send_keys("9894449813@")
+    
+    password_input.send_keys("*********enter you Linkedin Pasword *****************")
     time.sleep(5)
     button = driver.find_element(By.XPATH, '//*[@id="main-content"]/section[1]/div/div/form[1]/div[2]/button')
     button.click()
