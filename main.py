@@ -23,11 +23,11 @@ def sign_in():
     time.sleep(3)
     email_input = driver.find_element(By.XPATH, '//*[@id="session_key"]')
     
-    email_input.send_keys("*********enter you Linkedin Login Id *****************")
+    email_input.send_keys("*********enter your Linkedin Login Id *****************")
     time.sleep(4)
     password_input = driver.find_element(By.XPATH, '//*[@id="session_password"]')
     
-    password_input.send_keys("*********enter you Linkedin Pasword *****************")
+    password_input.send_keys("*********enter your Linkedin Pasword *****************")
     time.sleep(5)
     button = driver.find_element(By.XPATH, '//*[@id="main-content"]/section[1]/div/div/form[1]/div[2]/button')
     button.click()
