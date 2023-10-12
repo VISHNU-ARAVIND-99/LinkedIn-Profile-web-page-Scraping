@@ -52,10 +52,7 @@ def scroll_down():
 def return_profile_info(employee_link, count):
     try:
         company = "Nil"
-        final_list = []
-        full_list = []
-        profile = []
-        i = 1
+        u = employee_link
         url = employee_link
         driver.get(url)
         time.sleep(3)
@@ -67,50 +64,90 @@ def return_profile_info(employee_link, count):
         title = info.find('div', class_='text-body-medium break-words').get_text().lstrip().strip()
         location = info.find('span', class_='text-body-small inline t-black--light break-words').get_text().strip()
 
-        profile.append(name)
-        profile.append(title)
-        profile.append(location)
         try:
             company = info.find('span', class_='pv-text-details__right-panel-item-text hoverable-link-text break-words text'
                                                '-body-small t-black').get_text().strip()
-            profile.append(company)
 
         except:
             pass
-        # artdeco-list__item pvs-list__item--line-separated pvs-list__item-
-        # -one-column pvs-list--ignore-first-item-top-padding
-        # artdeco-list__item pvs-list__item--line-separated pvs-list__item--one-column
-        # artdeco-list__item pvs-list__item--line-separated pvs-list__item--one-column
-        experiences = source.find_all('li', class_='artdeco-list__item pvs-list__item--line-separated pvs-list'
-                                                   '__item--one-column pvs-list--ignore-first-item-top-padding')
 
-        for x in experiences[0:]:
-            all_text = x.getText().split('\n')
-            full_list.append(all_text)
+        url = driver.current_url + '/details/experience/'
+        driver.get(url)
+        time.sleep(4)
+        source = BeautifulSoup(driver.page_source, "html.parser")
+        time.sleep(1)
+        exp = source.find_all('li',
+                              class_='pvs-list__paged-list-item artdeco-list__item pvs-list__item--line-separated pvs-list__item--one-column')
+        row = []
+        for e in exp:
+            row.append(e.getText().split('\n'))
+        CurrentCompanyTitle = 'Nil'
+        CurrentCompanyName = 'Nil'
+        PastCompanyTitle = 'Nil'
+        PastCompanyName = 'Nil'
+        new_list = []
+        for i in row:
+            b = [x[:len(x) // 2] for x in i if x != '' and x != ' ']
+            new_list.append(b)
 
-        for inner_list in full_list:
-            for y in range(0, 10):
-                if len(inner_list[y]) > 5:
-                    i = 0
-                    break
-                else:
-                    i = 1
-            if i == 1:
-                final_list = inner_list
+        for i in new_list:
+            if i[0][-4:] == "logo":
+                i.pop(0)
+        # for i in new_list:
+        #     print(i)
+        # print("----------------------")
+
+        c = 1
+        for i in new_list:
+            if c <= 2:
+                if i[2][-4:] == " mos" or i[2][-2:] == "mo" or i[2][-3:] == "yrs":
+                    if c == 1:
+                        c += 1
+                        CurrentCompanyTitle = i[0]
+                        if i[1][-9:] == "Full-time":
+                            CurrentCompanyName = i[1][:-12]
+                        else:
+                            CurrentCompanyName = i[1]
+                    elif c == 2:
+                        c += 1
+                        PastCompanyTitle = i[0]
+                        if i[1][-9:] == "Full-time":
+                            PastCompanyName = i[1][:-12]
+                        else:
+                            PastCompanyName = i[1]
+                elif i[1][-4:] == " mos" or i[1][-2:] == "mo" or i[1][-3:] == "yrs":
+                    if i[3][-4:] == " mos" or i[3][-2:] == "mo" or i[3][-3:] == "yrs":
+                        if c == 1:
+                            c += 1
+                            CurrentCompanyTitle = i[2]
+                            CurrentCompanyName = i[0]
+                        elif c == 2:
+                            c += 1
+                            PastCompanyTitle = i[2]
+                            PastCompanyName = i[0]
+                    elif i[3] == "Full-time":
+                        if c == 1:
+                            c += 1
+                            CurrentCompanyTitle = i[2]
+                            CurrentCompanyName = i[0]
+                        elif c == 2:
+                            c += 1
+                            PastCompanyTitle = i[2]
+                            PastCompanyName = i[0]
+                    else:
+                        if c == 1:
+                            c += 1
+                            CurrentCompanyTitle = i[3]
+                            CurrentCompanyName = i[0]
+                        elif c == 2:
+                            c += 1
+                            PastCompanyTitle = i[3]
+                            PastCompanyName = i[0]
+
+            else:
                 break
-        new_list = [x for x in final_list if x != '' and x != ' ']
-        half_list = [item[:len(item) // 2] for item in new_list]
 
-        if half_list[1][-1] == 's' or half_list[1][-1] == 'o':
-            del half_list[:2]
-            to_check1 = half_list[0].replace(',', '').split()
-            to_check2 = profile[2].replace(',', '').split()
-            if to_check1[-1] == to_check2[-1]:
-                del half_list[:1]
-        if half_list[0] == "Work email" or half_list[0] == "Workplace" or half_list[0] == "Government ID and 1 other":
-            half_list[0] = profile[1]
-
-        job_role_list = half_list[0].replace(',', '').replace('-', ' ').replace('.', '').replace('&', '') \
+        job_role_list = CurrentCompanyTitle.replace(',', '').replace('-', ' ').replace('.', '').replace('&', '') \
             .replace('|', '').replace('@', ' ').replace('/', ' ').replace(':', '').split()
         if "Chief" in job_role_list:
             role = "C-Officer"
@@ -237,7 +274,8 @@ def return_profile_info(employee_link, count):
             role = "Others"
             num = 39
 
-        com_list = [num, profile[0], half_list[0], role, url, profile[1], company, profile[2]]
+        com_list = [num, name, CurrentCompanyTitle, role, location, PastCompanyTitle, PastCompanyName, u, title,
+                    company, CurrentCompanyName]
         list_of_list.append(com_list)
         print(count)
     except:
@@ -245,12 +283,22 @@ def return_profile_info(employee_link, count):
         print("error")
 
 
+list_of_list = []
+with open('link.txt', 'r') as file:
+    links = file.readlines()
+links_list = [x.strip() for x in links]
+
+options = webdriver.ChromeOptions()
+options.add_experimental_option("detach", True)
+service = Service(executable_path="chromedriver.exe")
+driver = webdriver.Chrome(service=service, options=options)
+
 sign_in()
 count = 0
 for link in links_list:
     count += 1
     return_profile_info(employee_link=link, count=count)
 
-df = pd.DataFrame(list_of_list, columns=['Hierarchy N0', 'Name', 'Title', 'Role', 'Url',
-                                         'Top Job Title', 'Company Name', 'Location'])
+df = pd.DataFrame(list_of_list, columns=['Hierarchy N0', 'Name', 'Current Company Title', 'Role', 'Location',
+    'Past Company Title', 'Past Company Name', 'Url', 'Top Job Title', 'Top Company Name', 'Current Company Name'])
 df.to_excel('Linkedin_output.xlsx', index=False)
